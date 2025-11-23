@@ -1,2 +1,1 @@
-(a,b) = map(int, input().split())
-print(f"{a+b}")
+print(f"{sum(map(int, input().split()))}")

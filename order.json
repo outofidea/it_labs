@@ -1,0 +1,27 @@
+{
+    "lab5_w7": [
+        "a_plus_b",
+        "a_divide_b",
+        "complex_mul",
+        "integer_eq",
+        "combine_rectangle",
+        "string",
+        "triangle",
+        "calculator",
+        "distance",
+        "square_number",
+        "time_format",
+        "binary_to_decimal"
+    ],
+    "lab6_w8": [
+        "loop",
+        "fibonacci",
+        "solution",
+        "even_numbers",
+        "prime_number",
+        "digit_sum",
+        "mushroom_exchanging",
+        "reverse",
+        "binary_to_decimal"
+    ]
+}
