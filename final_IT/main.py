@@ -1,11 +1,75 @@
+#                                                         .@@@.    -@@                               
+#                                             -@@@@@@@@@@@@@@@@@@@@ @  @.                            
+#                                       @@@::::::::::::::::::::::@@@ @  .@                           
+#                                  =@@:::::::::::::::::::::::::::::::@@@@ @                          
+#                               @@::::::::::::::::::::::::::::::::::::::*@.@##@@@*                   
+#                            .@::::::::::::::::::::::::::::::::::::::::::::@@#%%%%@                  
+#                          +@::::::::::::::::::::::::::::::::::::::::::::::::@@%%@                   
+#                        -@::::::::::::::::::::::::::::::::::::::::::::.....:::@@##@                 
+#                       @:::::::::::::::::::::::::::::::::::::::::::::::.....::::@#%%@               
+#                     @#::::::::::::::::::%::::::::::::::::@::::::::::::::....::::@%%%@              
+#                    @--------::::::::::::@::::::::::::::::@::::::::::::::::..:::::@%%%@             
+#                   @----------------:-:::@::::::::::::::::@::::::::::::::::::.:::::@%%%#            
+#                  @----------------------@---:::::::::::::@:::::::::::::::::..::::::@%%*            
+#                  @::::---------------+@@@---------------@*--++-::::::::::::::::::::@%=             
+#                 @:::::::-------------@..@---------------@+@------=@@------:::::::::-@              
+#                 @-:::::--%--------=@.....@-------------@..:@------------------------@              
+#                 @-------@--@-%@.     @@..@------------@..:@@#.-@@@------------------@              
+#                #@------@----@   #@:    -@.@----------@.@@         .@-@--------------@              
+#                @@------@...@  .@@@@@    .%.@--------@.@     @@@@.   @---@-----------@:             
+#               @=@------@..:@  :@@@@@     @..@*--@-=@.#*    @@@@@@    @--@---:::::--@=@             
+#              @+@@------@...@    @@%      @....@@-@...@      @@@@@    @#-@----------@==@            
+#                  @------@..@.           @.....@@%@@..@-              @..@---------@  @@@           
+#                  .@-*---@...@@         @..............@             @..@---------@.                
+#                    @-@@--@....-@@@#@@@.................@+          @...@--------@.                 
+#                      @@=@#=..............................@@#   :@@....@--------@@                  
+#                      %=@.............................................@-------+@=@                  
+#                     @==@...................@.......@...............#@----@@-@====@                 
+#                    @===@.....................%@@@@%...............@-#@@-:@@@======@                
+#                  .@====@.................................................@+========@*              
+#                 @+======#@.............................................@@=======----=@=            
+#               @@=----=====@@.........................................@#=====----------@@.          
+#             +@-@==-------====@@..................................:@@===---------------@-#@         
+#            .@--@==-----------===@@@...........................@@%=-------------------=@--@         
+#            @---=@==---------=@.@@.::-@@@................@@@@@:::.+@@---------------==@---@.        
+#             @----@==-------@:...@....@@%%%%%%@@@@@%%%%%%%%%%@@.....#@@-----------==@#----@         
+#              @-----@@=--@-:#.@=.....@#.:......@#@-@...@@..@@%@.....#.@.@+=======@@-----@%          
+#              @+@------%:..:@.@.....=@...........@.@%:........@@..@@@.@...@@@@+-------@@=@          
+#              @@@--@@-@-...@:......@@.......@@.@@.............@@@@.@@@+...#@.@@@@%%@@=---@          
+#              @......@:...@.@...@@ #-...:..#=.........:%..:...:.@ -@=@....@@@@.######%@@            
+#             :*.....+..%.+..@=@.  :.............................@:   @@.@@@@#.@#######@-#@          
+#              @.....-@.....@@     @..........:...@..............#@      @=.@@.#######@              
+#                @@+......@        @..........:..................@%*       @%@#####@@%               
+#                  @....#@        @#%........:.........:........@#@@        .@####@                  
+#                   @@@.          @##=+=@@*....+@@%@@+....*@@@@#@+#@:          @@@:                  
+#                                =@###++################@++#####+###@                                
+#                                @%###*++###@#%#####*++++###%=#=%###@                                
+#                                @%%###**######%+++++###*+###%-=#####@                               
+#                               :%*%%########%*+#########+######=-%##@                               
+#                               @###@#############@#####*#####%-.--%%@                               
+#                               @###+@#%+-##########*#########%%%*##%@                               
+#                               @@##*+%---@##########*#########***%%%%=                              
+
+
 from typing_extensions import override
 import db_management
 from db_management import CourseInfo
 
-from clypi import Command, Positional, arg, boxed, stack, Spinner, ClypiException
+from clypi import (
+    Command,
+    Positional,
+    arg,
+    boxed,
+    stack,
+    Spinner,
+    ClypiException,
+    confirm,
+    cprint,
+    ColorType,
+)
 
 
-def print_course_data(coursedata: list[tuple[str, CourseInfo]]):
+def print_courses_data(coursedata: list[tuple[str, CourseInfo]]):
     if coursedata != None:
         for course in coursedata:
             id = course[0]
@@ -24,8 +88,39 @@ def print_course_data(coursedata: list[tuple[str, CourseInfo]]):
                 )
             )
     elif not coursedata | coursedata == None:
-        print("No courses !")
+        cprint("No courses !", fg=ColorType["bright_red"])
 
+
+def print_course_data_changes(coursedata: tuple[str, CourseInfo, CourseInfo]):
+    if coursedata != None:
+        id = coursedata[0]
+        old = (coursedata[1])  # type: ignore
+        new = (coursedata[2])  # type: ignore
+
+        cprint(
+            stack(
+                boxed(
+                    [
+                        f"Course Name: {old.CourseName}",
+                        f"Credits: {old.CourseCreds}",
+                        f"Score: {old.CourseScore}",
+                        f"Semester: {old.CourseSemester}",
+                    ],
+                    title=f"ID: {id} OLD",
+                    color="bright_yellow",
+                ),
+                boxed(
+                    [
+                        f"Course Name: {new.CourseName}",
+                        f"Credits: {new.CourseCreds}",
+                        f"Score: {new.CourseScore}",
+                        f"Semester: {new.CourseSemester}",
+                    ],
+                    title=f"ID: {id} NEW",
+                    color="bright_blue",
+                ),
+            ),
+        )
 
 
 class AddCourse(Command):
@@ -46,19 +141,20 @@ class AddCourse(Command):
 class EditCourse(Command):
     CourseID: Positional[str] = arg(help="Course Code")
 
-    CourseName: str | None = None
-    NumCreds: int | None = None
-    Score: float | None = None
-    Semester: int | None = None
+    CourseName: str | None = arg(prompt="New course name ?", default=None)
+    NumCreds: int | None = arg(prompt="New course credits ?", default=None)
+    Score: float | None = arg(prompt="New course score ?", default=None)
+    Semester: int | None = arg(prompt="New course semester ?", default=None)
 
     @override
     async def run(self):
 
-        current_course = await db.get_course(self.CourseID)
+        current_course =  await db.get_course(self.CourseID) # type: ignore
+        current_course = CourseInfo(**(current_course))
         if current_course == None:
             print(f"Course ID {self.CourseID} not found in DB !")
             print(f"Current courses:")
-            print_course_data(await db.get_all_courses())  # type: ignore
+            print_courses_data(await db.get_all_courses())  # type: ignore
         else:
 
             changes = CourseInfo(None, None, None, None)
@@ -90,14 +186,29 @@ class EditCourse(Command):
                 else:
                     changes.CourseSemester = current_course.CourseSemester
 
-                await db.update_course(self.CourseID, changes)
+                print_course_data_changes((self.CourseID, current_course, changes))
+
+                if confirm("Confirm changes ? [yes/no | y/n]"):
+                    await db.update_course(self.CourseID, changes)
+                    cprint("Changes committed", bold=True, fg="bright_green")
+                else:
+                    cprint("Cancelled", bold=True, fg="bright_red")
+
+
 
 class DeleteCourse(Command):
     CourseId: Positional[str] = arg(help="Course Code")
 
     @override
     async def run(self):
-        pass
+        if confirm(f"Really delete course with ID: {self.CourseId} ? [yes/no | y/n]"):
+            if not await db.delete_course(self.CourseId):
+                print(f"No such course: {self.CourseId}")
+            else:
+                print(f"Course {self.CourseId} deleted !")
+        else:
+            print("Cancelled")
+
 
 class AddRandCourse(Command):
     Num: Positional[int] = arg(help="Num courses to add")
@@ -114,11 +225,11 @@ class ListCourses(Command):
     async def run(self):
         async with Spinner("Getting data", capture=True):
             coursedata = await db.get_all_courses()
-            print_course_data(coursedata)  # type: ignore
+            print_courses_data(coursedata)  # type: ignore
 
 
 class Gradebook(Command):
-    subcommand: AddCourse | ListCourses | AddRandCourse | EditCourse
+    subcommand: AddCourse | ListCourses | AddRandCourse | EditCourse | DeleteCourse
 
     @override
     async def run(self):
