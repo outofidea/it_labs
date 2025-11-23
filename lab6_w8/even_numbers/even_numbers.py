@@ -1,0 +1,1 @@
+print(*[lol for lol in reversed(range(2, int(input()) + 1, 2))])
