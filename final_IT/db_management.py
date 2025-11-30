@@ -6,10 +6,10 @@ from dataclasses import dataclass
 
 @dataclass
 class CourseInfo:
-    CourseName: str | None
-    CourseCreds: int | None
-    CourseScore: float | None
-    CourseSemester: int | None
+    CourseName: str = "lol u did not"
+    CourseCreds: int = 67
+    CourseScore: float = 67.67
+    CourseSemester: int = 2022
 
 class GradeBookDB:
 
