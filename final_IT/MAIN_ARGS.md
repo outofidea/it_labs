@@ -1,22 +1,15 @@
-# main.py — Program Arguments
-
-This document describes the command-line arguments and subcommands exposed by `main.py` (Gradebook CLI). The CLI uses the `clypi` library and provides a `Gradebook` command with several subcommands for managing courses in the gradebook.
+# Gradebook CLI — Program Arguments
 
 **Overview**
 
  This document describes the command-line arguments and subcommands exposed by `main.py` (Gradebook CLI). The CLI uses the `clypi` library and provides a `Gradebook` command with several subcommands for managing courses in the gradebook.
 
- **Overview**
- - **Purpose**: Manage courses (add, edit, delete, list, generate random data, calculate GPA) stored by the `db_management.GradeBookDB` backend used by `main.py`.
- - **Entry point**: In this workspace the CLI is exposed as a `gradebook` command when run through the `uv` runner; you can also run the script directly with `python main.py`.
 
  **Invocation**
  - Typical invocation patterns (use the `uv` runner when available):
-   - `uv run gradebook <subcommand> [args...]` (preferred in this workspace)
-   - `uv run python main.py -- <subcommand> [args...]` (pass args after `--`)
-   - `python main.py <subcommand> [args...]` (may expose a different top-level name depending on `clypi`)
- - Subcommands observed at runtime (exact names): `add-course`, `list-courses`, `add-rand-course`, `edit-course`, `delete-course`.
-
+   - `uv run main.py <subcommand> [args...]` 
+   - `python ./main.py <subcommand> [args...]` 
+  
  **Commands & Arguments**
  - **AddCourse** (`add-course`): Add a specific course to the database.
    - Positional arguments (in order):
@@ -68,9 +61,12 @@ This document describes the command-line arguments and subcommands exposed by `m
    - Example:
      - `uv run gradebook list-courses`
 
- - **CalcGPA**: (Stubbed/unimplemented)
-   - The `CalcGPA` class exists in the source but currently its `run` method is `pass`, and no `calc-gpa` subcommand was present in the observed runtime help.
-   - Intended purpose: compute GPA from stored courses. Not implemented.
+ - **CalcGPA**: `(calc-gpa)`: Calculates total GPA of all courses in gradebook
+   - No arguments
+   - Behaviour: 
+     - Calculates GPA and prints out result
+   - Example: 
+     - `uv run main.py calc-gpa`
 
  **Field Types & Models**
  - `CourseInfo` (from `db_management`) is the primary data structure for course records. Fields used in `main.py`:

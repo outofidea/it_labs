@@ -1,9 +1,10 @@
 # Sam Nhat Lam - AUH14961 - Final IT Portfolio
+a very much caffeine laced final project :sob:
 
 ## Installation of Gradebook CLI
 
 ### Prerequisites: 
-- Astral [uv](https://docs.astral.sh/uv/#installation) Python Package Manager
+- Astral [uv](https://docs.astral.sh/uv/#installation) Python Package Manager 
 - Python 3 or higher
 
 ### Package Installation:

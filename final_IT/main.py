@@ -1,4 +1,4 @@
-
+# copylol: sam nhat lam
 # ?                                                        .@@@.    -@@
 # ?                                            -@@@@@@@@@@@@@@@@@@@@ @  @.
 # ?                                      @@@::::::::::::::::::::::@@@ @  .@
@@ -51,6 +51,7 @@
 # ?                              @###+@#%+-##########*#########%%%*##%@
 # ?                              @@##*+%---@##########*#########***%%%%=
 
+# ? may the gaze of her wisdom bless this godawful, downright horrible code
 
 from typing_extensions import override
 import db_management
@@ -71,27 +72,17 @@ from clypi import (
     ColorType,
     prompt,
     separator,
+    parsers,
 )
 
+
+score_parser = parsers.Float(gte=0.0, lte=10.0)
 
 def print_courses_data(coursedata: list[tuple[str, CourseInfo]]):
     if coursedata != None:
 
-        courses_by_semester: dict[int, list[tuple[str, CourseInfo]]] = dict()
-
         # * sorting by semester
-        for course in coursedata:
-            course_id = course[0]
-            course_info = CourseInfo(**course[1])  # type: ignore
-
-            semester_courses = courses_by_semester.get(course_info.CourseSemester)
-
-            if semester_courses == None:
-                courses_by_semester[course_info.CourseSemester] = [
-                    (course_id, course_info)
-                ]
-            else:
-                semester_courses.append((course_id, course_info))
+        courses_by_semester = sort_courses_by_semester(coursedata)
 
         # * actual printing of data
         for semester, courses in courses_by_semester.items():
@@ -122,6 +113,34 @@ def print_courses_data(coursedata: list[tuple[str, CourseInfo]]):
 
     elif not coursedata | coursedata == None:
         cprint("No courses !", fg=ColorType["bright_red"])
+
+
+def calc_gpa(courses: list[tuple[str, CourseInfo]]) -> float:
+    total_semester_creds = 0
+    total_quality_pts = 0
+
+    for course in courses:
+        total_semester_creds += course[1].CourseCreds
+        total_quality_pts += course[1].CourseCreds * course[1].CourseScore
+
+    return (total_quality_pts / total_semester_creds)
+
+
+
+def sort_courses_by_semester(coursedata):
+    courses_by_semester: dict[int, list[tuple[str, CourseInfo]]] = dict()
+
+    for course in coursedata:
+        course_id = course[0]
+        course_info = CourseInfo(**course[1])  # type: ignore
+
+        semester_courses = courses_by_semester.get(course_info.CourseSemester)
+
+        if semester_courses == None:
+            courses_by_semester[course_info.CourseSemester] = [(course_id, course_info)]
+        else:
+            semester_courses.append((course_id, course_info))
+    return courses_by_semester
 
 
 def print_course_data_changes(coursedata: tuple[str, CourseInfo, CourseInfo]):
@@ -157,10 +176,10 @@ def print_course_data_changes(coursedata: tuple[str, CourseInfo, CourseInfo]):
 
 
 class AddCourse(Command):
-    CourseName: Positional[str] = arg(help="Course Name")
     CourseID: Positional[str] = arg(help="Course Code")
+    CourseName: Positional[str] = arg(help="Course Name")
     NumCreds: Positional[int] = arg(help="Number of credits")
-    Score: Positional[int] = arg(help="Score")
+    Score: Positional[float] = arg(help="Score", parser=score_parser)
     Semester: Positional[int] = arg(help="Course Semester")
 
     @override
@@ -176,7 +195,7 @@ class EditCourse(Command):
 
     CourseName: str | None = arg(default=None)
     NumCreds: int | None = arg(default=None)
-    Score: float | None = arg(default=None)
+    Score: float | None = arg(default=None, parser=score_parser)
     Semester: int | None = arg(default=None)
 
     @override
@@ -275,7 +294,9 @@ class AddRandCourse(Command):
     async def run(self):
         async with Spinner("Making up data"):
             for n in range(0, self.Num):
-                await db.add_course(f"AUH000{n}", CourseInfo("lol", 100, 67, 2025))
+                await db.add_course(
+                    f"AUH000{n + 100}", CourseInfo("lol2", 2, 9.5, 2026)
+                )
 
 
 class ListCourses(Command):
@@ -287,13 +308,60 @@ class ListCourses(Command):
 
 
 class CalcGPA(Command):
+
+    @override
+    @classmethod
+    def prog(cls):
+        return "calc-gpa"
+
     @override
     async def run(self):
         pass
 
 
+class CalcGPABySemester(Command):
+    Semesters: list[int] | None = arg(
+        default=None,
+        help="Semesters to calculate the gpa",
+        parser=parsers.List(parsers.Int()),
+    )
+
+    @override
+    @classmethod
+    def prog(cls):
+        return "calc-gpa-semester"
+
+    @override
+    async def run(self):
+
+        async with Spinner("Getting data", capture=False):
+            coursedata = await db.get_all_courses()
+
+        courses_by_semester = sort_courses_by_semester(coursedata)
+        if self.Semesters is not None:
+            courses_filtered = {key: courses_by_semester[key] for key in self.Semesters}
+
+            print(courses_filtered)
+
+            for semester, courses in courses_filtered.items():
+                gpa = calc_gpa(courses)
+                print(f"semester: {semester}: {gpa}")
+        else:
+            for semester, courses in courses_by_semester.items():
+                gpa = calc_gpa(courses)
+                print(f"semester: {semester}: {gpa}")
+
+
 class Gradebook(Command):
-    subcommand: AddCourse | ListCourses | AddRandCourse | EditCourse | DeleteCourse
+    subcommand: (
+        AddCourse
+        | ListCourses
+        | AddRandCourse
+        | EditCourse
+        | DeleteCourse
+        | CalcGPA
+        | CalcGPABySemester
+    )
 
     @override
     async def run(self):
@@ -305,166 +373,6 @@ if __name__ == "__main__":
     with db_management.GradeBookDB() as db:
         cmd = Gradebook.parse()
         cmd.start()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 """ Posting from my main account because posts from my new account get automatically deleted, and I need my voice to be heard as soon as possible.
